@@ -1,8 +1,9 @@
 import axios from "axios";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
+import Navbar from "./shared/Navbar";
 
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { setSingleJob } from "../../redux/jobSlice";
 import { useEffect, useState } from "react";
@@ -18,7 +19,13 @@ const [isApplied,setIsApplied] = useState(isIntiallyApplied)
     const jobId = params.id;
     const dispatch= useDispatch();
 
+    const navigate = useNavigate();
+
     const applyJobHandler = async()=>{
+        if(!user) {
+            toast.error("Please login or signup to apply for this job.");
+            return navigate("/login");
+        }
         try{
   const res = await axios.get(`${Application_API_END_POINT}/apply/${jobId}`,{withCredentials:true})
   console.log(res.data)
@@ -51,7 +58,9 @@ const [isApplied,setIsApplied] = useState(isIntiallyApplied)
         fetchSingleJob();
     },[jobId,dispatch,user?._id])
     return (
-        <div className="max-w-5xl mx-auto my-10">
+        <div>
+        <Navbar />
+        <div className="max-w-5xl mx-auto my-10 px-4 md:px-8">
             <div className="flex itmes-center justify-between">
                 <div>
                     <h1 className="font-bold text-xl">{singleJob?.title}</h1>
@@ -75,6 +84,7 @@ const [isApplied,setIsApplied] = useState(isIntiallyApplied)
                 <h1 className="font-bold my-1">Total Applicants:<span className="pl-4 font-normal text-gray-800">{singleJob?.applications?.length}</span></h1>
                 <h1 className="font-bold my-1">Posted Date:<span className="pl-4 font-normal text-gray-800">{singleJob?.createdAt.split("T")[0]}</span></h1>
             </div>
+        </div>
         </div>
     )
 }

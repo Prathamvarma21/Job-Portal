@@ -13,7 +13,7 @@ const applicationSchema = new mongoose.Schema({
     },
     status: {
         type: String,
-        enum: ['applied', 'accept', 'offered', 'rejected'],
+        enum: ['applied', 'accepted', 'offered', 'rejected'],
         default: 'applied'
     },
 

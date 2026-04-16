@@ -12,8 +12,11 @@ import CompanyCreate from "./components/admin/CompanyCreate"
 import CompanySetup from "./components/admin/CompanySetup"
 import AdminJobs from "./components/admin/AdminJobs"
 import PostJob from "./components/admin/PostJob"
+import UpdateJob from "./components/admin/UpdateJob"
 import Applicants from "./components/admin/Applicants"
 import ProtectedRoute from "./components/admin/ProtectedRoute"
+import ChatDialog from "./components/chat/ChatDialog"
+import RecruiterDashboard from "./components/admin/RecruiterDashboard"
 
 const appRouter = createBrowserRouter([
   {
@@ -46,6 +49,10 @@ const appRouter = createBrowserRouter([
   },
   //admin k liye yha se start hoga
   {
+    path:"/admin/dashboard",
+    element:<ProtectedRoute><RecruiterDashboard/></ProtectedRoute>
+  },
+  {
     path:"/admin/companies",
     element:<ProtectedRoute><Companies/></ProtectedRoute>
   },
@@ -66,6 +73,10 @@ const appRouter = createBrowserRouter([
     element:<ProtectedRoute><PostJob/></ProtectedRoute>
   },
   {
+    path:"admin/jobs/:id/edit",
+    element:<ProtectedRoute><UpdateJob/></ProtectedRoute>
+  },
+  {
     path:"admin/jobs/:id/applicants",
     element:<ProtectedRoute><Applicants/></ProtectedRoute>
   },
@@ -79,8 +90,9 @@ function App() {
 
   return (
     <>
-  <RouterProvider router={appRouter}/>
-     </>
+      <RouterProvider router={appRouter}/>
+      <ChatDialog />
+    </>
   )
 }
 

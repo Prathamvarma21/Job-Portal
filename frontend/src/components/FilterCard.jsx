@@ -1,29 +1,16 @@
 import React, { useEffect, useState } from 'react'
 import { RadioGroup, RadioGroupItem } from './ui/radio-group'
 import { Label } from './ui/label'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { setSearchedQuery } from '../../redux/jobSlice.js'
 
-const filterData = [
-    {
-        filterType:"Location",
-        array:["Delhi NCR","Noida","Pune","Mumbai"]
-    },
-    {
-        filterType:"Industry",
-        array:["Frontend Developer","Backend Developer","FullStack Developer"]
-    },
-    {
-        filterType:"Salary",
-        array:["0-40k","42-1akh","1lakh to 5 lakh"]
-    }
-
-  
-]
+// filterData will be generated dynamically based on jobs
 
 const FilterCard = () => {
     const [selectedValue,setSelectedValue] = useState("");
-   const dispatch = useDispatch();
+    const dispatch = useDispatch();
+    const { allJobs } = useSelector(store => store.job);
+    
     const changeHandler = (value) =>{
         setSelectedValue(value)
     }
@@ -31,6 +18,24 @@ const FilterCard = () => {
      dispatch(setSearchedQuery(selectedValue));
         
     },[selectedValue])
+
+    const uniqueLocations = Array.from(new Set(allJobs.map(job => job.location))).filter(Boolean);
+
+    const filterData = [
+        {
+            filterType:"Location",
+            array: uniqueLocations.length > 0 ? uniqueLocations : ["Delhi NCR","Noida","Pune","Mumbai"]
+        },
+        {
+            filterType:"Industry",
+            array:["Frontend Developer","Backend Developer","FullStack Developer"]
+        },
+        {
+            filterType:"Salary",
+            array:["0-40k","42-1akh","1lakh to 5 lakh"]
+        }
+    ];
+
   return (
     <div className='w-full bg-white p-3 rounded-md'>
      <h1 className='font-bold text-lg'>Filter Jobs</h1>

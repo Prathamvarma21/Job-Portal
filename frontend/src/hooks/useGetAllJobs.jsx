@@ -22,7 +22,7 @@ useEffect(()=>{
         }
     }
         fetchAllJobs();
-},[])
+},[searchedQuery])
 }
 
 export default useGetAllJobs;

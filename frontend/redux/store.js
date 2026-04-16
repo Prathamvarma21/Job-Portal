@@ -3,6 +3,7 @@ import authSlice from "./authSlice.js";
 import jobSlice from "./jobSlice.js";
 import companySlice from "./companySlice.js";
 import applicationSlice from "./applicationSlice.js";
+import chatSlice from "./chatSlice.js";
 import {
     persistStore,
     persistReducer,
@@ -23,7 +24,8 @@ const persistConfig = {
     auth: authSlice,
     job:jobSlice,
     company:companySlice,
-    application:applicationSlice
+    application:applicationSlice,
+    chat:chatSlice
   })
   const persistedReducer = persistReducer(persistConfig, rootReducer)
   

@@ -19,8 +19,8 @@ const Profile = () => {
     return (
         <div>
             <Navbar />
-            <div className='max-w-5xl mx-auto bg-white border border-gray-500 rounded-2xl my-5 p-8'>
-                <div className='flex justify-between'>
+            <div className='max-w-5xl mx-auto bg-white border border-gray-500 rounded-2xl my-5 p-4 md:p-8 mx-4 md:mx-auto'>
+                <div className='flex flex-col md:flex-row justify-between gap-4'>
                     <div className='flex items-center gap-4'>
                         <Avatar className="h-24 w-24">
                             <AvatarImage src="https://static.vecteezy.com/system/resources/thumbnails/008/214/517/small_2x/abstract-geometric-logo-or-infinity-line-logo-for-your-company-free-vector.jpg" />
@@ -58,7 +58,7 @@ const Profile = () => {
                     }
                 </div>
             </div>
-            <div className='max-w-4xl mx-auto bg-white rounded-2xl'>
+            <div className='max-w-4xl mx-auto bg-white rounded-2xl px-4 md:px-0'>
                 <h1 className='font-bold text-lg my-5'>Applied Jobs </h1>
                 <AppliedJobTable />
             </div>

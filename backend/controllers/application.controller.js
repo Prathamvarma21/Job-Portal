@@ -3,7 +3,7 @@ import { Job } from '../models/job.model.js';
 
 export const applyjob = async (req, res) => {
   try {
-    const jobId = req.params.id; // Assuming the job ID is passed as a URL parameter
+    const jobId = req.params.id; 
     const userId = req.id;
     if (!jobId) {
       return res.status(400).json({ message: 'Job ID is required', success: false });
@@ -13,24 +13,22 @@ export const applyjob = async (req, res) => {
       return res.status(400).json({ message: 'You have already applied for this job', success: false });
     }
 
-    const application = await Application.create({
+    const job = await Job.findById(jobId);
+    if (!job) {
+      return res.status(404).json({ message: 'Job not found', success: false });
+    }
+
+    const newApplication = await Application.create({
       job: jobId,
       applicant: userId,
       status: 'applied'
     });
-    const job = await Job.findById(jobId).populate('company');
-    if (!job) {
-      return res.status(404).json({ message: 'Job not found', success: false });
-    }
-    const newApplication = await Application.create({
-      job: jobId,
-      applicant: userId,
-
-    });
-    job.applicants.push(newApplication._id);
+    
+    // Using correct schema field names
+    job.applications.push(newApplication._id);
     await job.save();
 
-    return res.status(201).json({ message: 'Application submitted successfully', application, job, success: true });
+    return res.status(201).json({ message: 'Application submitted successfully', success: true });
   } catch (error) {
     console.error(error);
     return res.status(500).json({ message: 'Server error', success: false });
@@ -50,7 +48,7 @@ export const getAppliedJobs = async (req, res) => {
 
     });
 
-    if (!application) {
+    if (!applications) {
       return res.status(404).json({ message: 'No applications found for this user', success: false });
     }
 
@@ -63,8 +61,8 @@ export const getAppliedJobs = async (req, res) => {
 
 export const getApplicants = async (req, res) => {
   try {
-    const jobId = req.params.id; // Assuming the job ID is passed as a URL parameter
-    const applicants = await Application.find({ job: jobId }).populate({
+    const jobId = req.params.id;
+    const job = await Job.findById(jobId).populate({
       path: 'applications',
       options: { sort: { createdAt: -1 } },
       populate: {

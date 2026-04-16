@@ -3,6 +3,20 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import getDataUri from '../utils/datauri.js';
 import cloudinary from '../utils/cloudinary.js';
+
+const cookieOptions = {
+  maxAge: 1 * 24 * 60 * 60 * 1000,
+  httpOnly: true,
+  sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
+  secure: process.env.NODE_ENV === 'production',
+};
+
+const clearCookieOptions = {
+  httpOnly: true,
+  sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
+  secure: process.env.NODE_ENV === 'production',
+};
+
 export const register = async (req, res) => {
   try {
     const { fullName, email, phoneNumber, password, role } = req.body;
@@ -95,11 +109,7 @@ export const login = async (req, res) => {
       profile: user.profile,
     };
 
-    return res.status(200).cookie('token', token, {
-      maxAge: 1 * 24 * 60 * 60 * 1000,
-      httpOnly: true,
-      sameSite: 'strict'
-    }).json({
+    return res.status(200).cookie('token', token, cookieOptions).json({
       message: `Welcome back ${user.fullName}`,
       user: userData,
       token,
@@ -113,7 +123,7 @@ export const login = async (req, res) => {
 
 export const logout = async (req, res) => {
   try {
-    res.cookie('token', '', { maxAge: 0, httpOnly: true, sameSite: 'strict' });
+    res.cookie('token', '', { ...clearCookieOptions, maxAge: 0 });
     return res.status(200).json({ message: 'Logged out successfully', success: true });
   } catch (error) {
     console.error('Error logging out user:', error);
@@ -139,6 +149,16 @@ export const updateProfile = async (req, res) => {
     if (phoneNumber) user.phoneNumber = phoneNumber;
     if (bio) user.profile.bio = bio;
     if (skills) user.profile.skills = skillsArray;
+    
+    if (req.file) {
+      const fileUri = getDataUri(req.file);
+      const cloudResponse = await cloudinary.uploader.upload(fileUri.content, { resource_type: "raw" });
+      // Wait, is profile initialized completely? Yes, registered users have profile object.
+      // Resume URL
+      if (!user.profile) user.profile = {};
+      user.profile.resume = cloudResponse.secure_url;
+      user.profile.resumeOriginalName = req.file.originalname;
+    }
 
     await user.save();
     
@@ -154,6 +174,51 @@ export const updateProfile = async (req, res) => {
     return res.status(200).json({ message: 'Profile updated successfully', user: updatedUser, success: true });
   } catch (error) {
     console.error('Error updating profile:', error);
+    return res.status(500).json({ message: 'Internal server error', success: false });
+  }
+}
+
+export const toggleSaveJob = async (req, res) => {
+  try {
+    const jobId = req.params.id;
+    const userId = req.id;
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found', success: false });
+    }
+
+    if (!user.profile.savedJobs) {
+      user.profile.savedJobs = [];
+    }
+
+    const isSaved = user.profile.savedJobs.includes(jobId);
+    if (isSaved) {
+      // Unsave logic
+      user.profile.savedJobs = user.profile.savedJobs.filter(id => id.toString() !== jobId);
+    } else {
+      // Save logic 
+      user.profile.savedJobs.push(jobId);
+    }
+
+    await user.save();
+
+    const updatedUser = {
+      _id: user._id,
+      fullName: user.fullName,
+      email: user.email,
+      phoneNumber: user.phoneNumber,
+      role: user.role,
+      profile: user.profile,
+    };
+
+    return res.status(200).json({ 
+      message: isSaved ? 'Job removed from saved list' : 'Job saved successfully', 
+      user: updatedUser, 
+      success: true 
+    });
+  } catch (error) {
+    console.error('Error toggling save job:', error);
     return res.status(500).json({ message: 'Internal server error', success: false });
   }
 }

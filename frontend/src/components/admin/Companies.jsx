@@ -20,7 +20,7 @@ dispatch(setSearchCompanyByText(input));
   return (
     <div>
       <Navbar/>
-      <div className='max-w-6xl mx-auto my-10'>
+      <div className='max-w-6xl mx-auto my-10 px-4 md:px-8'>
         <div className='flex items-center justify-between'>
             <Input
             className="w-fit"
