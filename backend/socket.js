@@ -8,13 +8,20 @@ const server = http.createServer(app);
 const allowedOrigins = [
     'http://localhost:5173',
     'http://localhost:5174',
+    'https://job-portal-theta-six-54.vercel.app',
     process.env.FRONTEND_URL,
 ].filter(Boolean);
 
 const io = new Server(server, {
     cors: {
-        origin: allowedOrigins,
+        origin: (origin, callback) => {
+            if (!origin || allowedOrigins.includes(origin) || origin.endsWith('.vercel.app')) {
+                return callback(null, true);
+            }
+            return callback(new Error(`Socket CORS blocked for origin: ${origin}`));
+        },
         methods: ['GET', 'POST'],
+        credentials: true,
     },
 });
 

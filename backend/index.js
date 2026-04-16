@@ -23,14 +23,20 @@ app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-const allowedOrigins = [
+export const allowedOrigins = [
   'http://localhost:5173',
   'http://localhost:5174',
+  'https://job-portal-theta-six-54.vercel.app',
   process.env.FRONTEND_URL,
 ].filter(Boolean);
 
 const corsOptions = {
-  origin: allowedOrigins,
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin) || origin.endsWith('.vercel.app')) {
+      return callback(null, true);
+    }
+    return callback(new Error(`CORS blocked for origin: ${origin}`));
+  },
   credentials: true,
 };
 app.use(cors(corsOptions));
