@@ -35,6 +35,7 @@ const navLinks = user && user.role === "recruiter"
   try{
 const res = await axios.get(`${USER_API_END_POINT}/logout`,{withCredentials:true});
 if(res.data.success){
+  localStorage.removeItem("token");
   dispatch(setUser(null));
   setMobileMenuOpen(false);
   navigate("/");
@@ -42,7 +43,11 @@ if(res.data.success){
 }
   }catch(error){
     console.log(error);
-    toast.error(error.response.data.message)
+    localStorage.removeItem("token");
+    dispatch(setUser(null));
+    setMobileMenuOpen(false);
+    navigate("/");
+    toast.error(error?.response?.data?.message || "Logged out locally")
     
   }
  }

@@ -9,16 +9,23 @@ import { Company_API_END_POINT } from "../../../utils/constant.js";
 import { toast } from "sonner";
 import { useDispatch } from "react-redux";
 import { setSingleCompany } from "../../../redux/companySlice.js";
+import { Loader2 } from "lucide-react";
 
 const CompanyCreate = () => {
   const navigate = useNavigate();
   const [name, setName] = useState("");
+  const [loading, setLoading] = useState(false);
   const dispatch = useDispatch();
   const registeredNewCompany = async () => {
+    if(!name.trim()){
+      toast.error("Company name is required");
+      return;
+    }
     try {
+      setLoading(true);
       const res = await axios.post(`${Company_API_END_POINT}/register`, 
         
-        {companyName: name},{
+        {companyName: name.trim()},{
           headers:{
             'Content-Type':'application/json'
           },
@@ -34,6 +41,9 @@ const CompanyCreate = () => {
       
     } catch (error) {
       console.log(error);
+      toast.error(error?.response?.data?.message || "Could not create company");
+    } finally {
+      setLoading(false);
     }
   };
   return (
@@ -57,10 +67,14 @@ const CompanyCreate = () => {
           <Button
             variant="outline"
             onClick={() => navigate("/admin/companies")}
+            disabled={loading}
           >
             Cancel
           </Button>
-          <Button onClick={registeredNewCompany}>Continue</Button>
+          <Button onClick={registeredNewCompany} disabled={loading}>
+            {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            Continue
+          </Button>
         </div>
       </div>
     </div>

@@ -40,13 +40,14 @@ const Login = () => {
         withCredentials:true
       });
       if(res.data.success){
+        localStorage.setItem("token", res.data.token);
         dispatch(setUser(res.data.user))
         navigate(res.data.user?.role === "recruiter" ? "/admin/dashboard" : "/");
         toast.success(res.data.message)
       }
     }catch(error){
   console.log(error);
-  toast.error(error.response.data.message)
+  toast.error(error?.response?.data?.message || "Login failed")
   
     }finally{
       dispatch(setLoading(false))
